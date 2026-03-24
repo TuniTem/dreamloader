@@ -1,0 +1,43 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="SimpleDownloader"
+run/main_scene="uid://hdhsqypv0drx"
+config/use_custom_user_dir=true
+config/custom_user_dir_name="TuniTools/Downloader"
+config/features=PackedStringArray("4.6", "GL Compatibility")
+config/icon="res://icon.svg"
+
+[autoload]
+
+File="*uid://cpi2pnfflekdv"
+Util="*uid://dhqqejsdf4hqa"
+
+[display]
+
+window/size/viewport_width=576
+window/size/viewport_height=324
+window/size/initial_position_type=4
+window/size/resizable=false
+window/size/transparent=true
+window/per_pixel_transparency/allowed=true
+
+[physics]
+
+3d/physics_engine="Jolt Physics"
+
+[rendering]
+
+rendering_device/driver.windows="d3d12"
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+viewport/transparent_background=true
