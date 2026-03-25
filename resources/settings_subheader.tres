@@ -1,0 +1,8 @@
+[gd_resource type="LabelSettings" format=3 uid="uid://dkvgeuvfperpi"]
+
+[ext_resource type="FontFile" uid="uid://c115jaaqcitkd" path="res://art/fonts/Pangolin-Regular.ttf" id="1_siomh"]
+
+[resource]
+font = ExtResource("1_siomh")
+font_size = 12
+font_color = Color(0.8235294, 0.49411765, 0.6745098, 1)
