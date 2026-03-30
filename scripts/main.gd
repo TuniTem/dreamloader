@@ -6,7 +6,7 @@ const DEFAULT_TITLE_FORMAT = "[playlist_number] [title] ([quality])"
 #const DEFAULT_OUTPUT_FOLDER = "%USERPROFILE%/downloads"
 
 const DEFAULT_WINDOWS_SIZE = Vector2i(864, 140)
-const SETTINGS_WINDOWS_SIZE = Vector2i(864, 486 + 20)
+const SETTINGS_WINDOWS_SIZE = Vector2i(864, (486 + 20))
 const ANIMATION_SPEED : float = 0.75
 const DEFAULT_OPACITY : float = 0.9
 
@@ -35,6 +35,7 @@ const DEFAULT_OPACITY : float = 0.9
 @onready var error_label: Label = %ErrorLabel
 @onready var error_copy_button: Button = %ErrCopy
 @onready var error_margin_container: MarginContainer = %ErrorMarginContainer
+@onready var cookie_conniption: Panel = %CookieConniption
 
 
 var first_press : bool = true
@@ -70,6 +71,12 @@ func _ready() -> void:
 	get_window().size = SETTINGS_WINDOWS_SIZE
 	await get_tree().process_frame
 	get_window().size = DEFAULT_WINDOWS_SIZE
+
+func show_cookie_conniption():
+	set_window_vertical(SETTINGS_WINDOWS_SIZE.y)
+	cookie_conniption.show()
+	cookie_conniption.modulate.a = 0.0
+	Util.tween(cookie_conniption, "modulate:a", 1.0, 1.0)
 
 func load_settings():
 	using_video = File.load_var("using_video", true)
@@ -160,7 +167,7 @@ func _on_settings_pressed() -> void:
 		if goin_up and get_window().position.y > DisplayServer.screen_get_size().y- SETTINGS_WINDOWS_SIZE.y:
 			tween.tween_property(get_window(), "position:y", get_window().position.y + SETTINGS_WINDOWS_SIZE.y - 140.0, ANIMATION_SPEED if not disable_animations else 0.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 		
-		tween.tween_property(get_window(), "size", DEFAULT_WINDOWS_SIZE, ANIMATION_SPEED if not disable_animations else 0.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		tween.tween_property(get_window(), "size:y", DEFAULT_WINDOWS_SIZE.y, ANIMATION_SPEED if not disable_animations else 0.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 		
 		if not disable_animations:
 			ui_animations.play("gear_ccw")
@@ -183,9 +190,9 @@ func _on_settings_pressed() -> void:
 		goin_up = get_window().position.y > DisplayServer.screen_get_size().y- SETTINGS_WINDOWS_SIZE.y
 		
 		if goin_up: 
-			tween.tween_property(get_window(), "position:y", get_window().position.y - SETTINGS_WINDOWS_SIZE.y + 140.0, ANIMATION_SPEED if not disable_animations else 0.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+			tween.tween_property(get_window(), "position:y", DisplayServer.screen_get_size().y-SETTINGS_WINDOWS_SIZE.y - 40.0, ANIMATION_SPEED if not disable_animations else 0.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 		#if not queue_open:
-		tween.tween_property(get_window(), "size", SETTINGS_WINDOWS_SIZE, ANIMATION_SPEED if not disable_animations else 0.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		tween.tween_property(get_window(), "size:y", SETTINGS_WINDOWS_SIZE.y, ANIMATION_SPEED if not disable_animations else 0.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 		#else:
 			#update_queue_visual()
 		
@@ -412,7 +419,8 @@ const ERR_MARGIN_CONTAINER_TOP : Array = [-36, -32]
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_WINDOW_FOCUS_IN:
-		attempt_clipboard_link_paste()
+		pass
+		#attempt_clipboard_link_paste()
 
 var error_tween : Tween
 func remove_error():
@@ -436,6 +444,8 @@ func _on_user_error(code : int, message : String):
 	send_error(code, message, false)
 
 func _on_unhandeld_error(code : int, message : String):
+	if code == 104 and not cookie_conniption.visible:
+		show_cookie_conniption()
 	send_error(code, message, true)
 
 var copying : bool = false

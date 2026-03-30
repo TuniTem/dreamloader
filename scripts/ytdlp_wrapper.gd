@@ -4,7 +4,8 @@ enum Binary {
 	YTDLP,
 	FFMPEG,
 	#FFPROBE,
-	DENO
+	DENO,
+	PLUGINS
 }
 
 enum ProcessorUsage {
@@ -94,14 +95,16 @@ const BINARY_NAMES : Dictionary[Binary, String] = {
 	Binary.YTDLP : "yt-dlp.exe",
 	Binary.FFMPEG : "ffmpeg.exe",
 	#Binary.FFPROBE : "ffprobe.exe" ,
-	Binary.DENO : "deno.exe"
+	Binary.DENO : "deno.exe",
+	Binary.PLUGINS : "yt_dlp_plugins/"
 }
 
 const ZIP_NAMES : Dictionary[Binary, String] = {
 	Binary.YTDLP : "yt-dlp.zip",
 	Binary.FFMPEG : "ffmpeg.zip",
 	#Binary.FFPROBE : "ffprobe.zip" ,
-	Binary.DENO : "deno.zip"
+	Binary.DENO : "deno.zip",
+	Binary.PLUGINS : "plugins.zip"
 }
 
 const FILENAME_FORMAT_FLAGS : Dictionary[String, String] = {
@@ -121,6 +124,8 @@ const ZIPS_LOCATION : String = "res://bin/"
 const BINARY_LOCATION : String = "user://bin/"
 
 const FIND_DEFAULT_BROWSER_COMMAND : String = "powershell -command \"(Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice').ProgId\""
+const FIREFOX_DATA_DIRECTORY = "[data]/Mozilla/Firefox"
+
 const BROWSER_NORMALIZATOR9000 : Dictionary[String, String] = {
 	"ChromeHTML": "chrome",
 	"FirefoxURL": "firefox",
@@ -128,7 +133,7 @@ const BROWSER_NORMALIZATOR9000 : Dictionary[String, String] = {
 	"IE.HTTP": "edge",
 	"BraveHTML": "brave",
 	"OperaStable": "opera",
-	"Opera GXStable": "opera",
+	"Opera GXStable": "\"opera:%appdata%/Opera Software/Opera GX Stable\"",
 	"VivaldiHTM": "vivaldi",
 	"NaverWale": "whale",
 	"WhaleHTML": "whale",
@@ -164,30 +169,13 @@ var create_directory_for_playlists : bool = false
 var open_directory_on_finish : bool = true
 var close_on_finish : bool = false
 var processor_usage : ProcessorUsage = ProcessorUsage.AVERAGE
+var erred : bool = false
 
 func _ready() -> void:
 	unhandled_error.connect(_on_unhandled_error)
-	
-	# find default web browser
-	var output = []
-	OS.execute("CMD.exe", ["/C", FIND_DEFAULT_BROWSER_COMMAND], output)
-	for browser_prog_id : String in BROWSER_NORMALIZATOR9000.keys():
-		if output[0].begins_with(browser_prog_id):
-			web_browser = BROWSER_NORMALIZATOR9000[browser_prog_id]
-	
-	if web_browser == "": # erm...
-		for browser_prog_id : String in BROWSER_NORMALIZATOR9000.keys():
-			if BROWSER_NORMALIZATOR9000[browser_prog_id] in output[0].to_lower():
-				web_browser = BROWSER_NORMALIZATOR9000[browser_prog_id]
-	
-	if web_browser == "": # uh oh!
-		printerr("\nWeb browser could not be found: " + str(output[0]))
-		web_browser = "chromium"#? ?? ?!? 
-		mark_important_error()
-		
-	
-	
-	print("Default browser: " + web_browser)
+	web_browser = "chromium"#find_browser()
+	print("Using browser: " + web_browser)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(BINARY_LOCATION + ZIP_NAMES[Binary.PLUGINS]))
 	
 	# make sure all the bianaries exist
 	File.verify_dir(BINARY_LOCATION)
@@ -196,16 +184,49 @@ func _ready() -> void:
 		var bin_location : String = BINARY_LOCATION + BINARY_NAMES[key]
 		
 		assert(FileAccess.file_exists(zip_location))
-		if not FileAccess.file_exists(bin_location):
+		if not FileAccess.file_exists(bin_location) or key == Binary.PLUGINS:
 			File.extract_all_from_zip(zip_location, BINARY_LOCATION, false)
 			print("Created " + BINARY_NAMES[key] + " at " + ProjectSettings.globalize_path(bin_location))
-	
+		
+		
 	await update_ytdlp()
 	
 	# load save data
 	download_transcode_ratio_history = File.load_var("download_transcode_ratio_history", download_transcode_ratio_history)
 
+func find_browser():
+	# find COOKIES
+	# maybe they manually put it in hmmm leattuce see! 
+	if FileAccess.file_exists(BINARY_LOCATION + "cookies.txt"):
+		# omg they are so talented!!
+		return "cookies.txt"
+	
+	# okay well you know thats okay! thats a really specific thing, its really no biggie
+	if DirAccess.dir_exists_absolute(FIREFOX_DATA_DIRECTORY.replace("[data]", OS.get_data_dir())): # lets just get their firefox cookies!
+		# yay!! they have firefox!!
+		print("Found firefox, using that one")
+		return "firefox"
+	
+	# umm!! well we can just find out what they are using ourselves!! and maybe try that!
+	var output = []
+	OS.execute("CMD.exe", ["/C", FIND_DEFAULT_BROWSER_COMMAND], output)
+	for browser_prog_id : String in BROWSER_NORMALIZATOR9000.keys(): 
+		if output[0].begins_with(browser_prog_id):
+			return BROWSER_NORMALIZATOR9000[browser_prog_id]
+	
+	# erm... maybe it changed its id?
+	for browser_prog_id : String in BROWSER_NORMALIZATOR9000.keys():
+		if BROWSER_NORMALIZATOR9000[browser_prog_id] in output[0].to_lower():
+			return BROWSER_NORMALIZATOR9000[browser_prog_id]
+	
+	# uh oh!
+	printerr("\nWeb browser could not be found: " + str(output[0]))
+	mark_important_error()
+	return "chromium" # ? ?? ?!? 
+	
+
 func mark_important_error():
+	erred = true
 	print("!! Important Error Above !!")
 
 func run(args : Array, binary : Binary = Binary.YTDLP, console : bool = false, print_output : bool = false, block : bool = true, print_input : bool = false):
@@ -234,7 +255,7 @@ func run(args : Array, binary : Binary = Binary.YTDLP, console : bool = false, p
 
 func update_ytdlp():
 	print ("Verifying YT-DLP version...")
-	run(["--update"], Binary.YTDLP, false, true)
+	run(["--update", "--verbose"], Binary.YTDLP, false, true)
 
 func format_filename(format_string : String):
 	var result : String = format_string
@@ -354,14 +375,7 @@ func update_progress(process_hook : Dictionary, progress_hook : Dictionary, usin
 	
 	progress_hook["done"] = true
 	
-	if queue.size() == 0:
-		if open_directory_on_finish:
-			print("opening " + current_request.get_bound_arguments()[2][4].replace("\"", "").replace("//", "/").replace("/", "\\"))
-			OS.create_process("explorer.exe", [current_request.get_bound_arguments()[2][4].replace("\"", "").replace("//", "/").replace("/", "\\")])
-		
-		if close_on_finish:
-			print("Closing gracefully because finish detected")
-			get_tree().quit()
+	
 
 signal unhandled_error(code : int, message : String)
 signal user_error(code : int, message : String)
@@ -377,6 +391,8 @@ const PROGRAM_ERRORS : Dictionary[String, Array] = {
 	"no such option": [101, "Argument parse error"],
 	"Failed to extract any player response" : [102, "Timed out - No player response"],
 	"being used by another process" : [103, "Attempted to access file in use"],
+	"cookies database" : [104, "Error fetching cookies"],
+	"Failed to decrypt with DPAPI" : [104, "Error fetching cookies"]
 } 
 const IGNORE_ERRORS : Array = [
 	"WARNING",
@@ -422,12 +438,18 @@ func download_audio(link : String, output_dir : String, file_name_format: String
 		"\"" + link + "\"",
 		"-o", "\"" + format_filename(file_name_format).replace("[quality]", quality) + ".%(ext)s" + "\"",
 		"-P", "\"" + output_dir + "/" + await get_playlist_title(link) + "\"",
-		"--cookies-from-browser", web_browser,
 		"--embed-metadata",
 		"--no-playlist"
 		#"--yes-playlist" if is_playlist else "--no-playlist",
 		#"--newline
 	]
+	
+	match web_browser:
+		"none": pass
+		"cookies.txt": args.append_array(["--cookies", "cookies.txt"])
+		_: args.append_array(["--cookies-from-browser ", web_browser])
+	
+		
 	
 	args.append_array(ARG_BINDINGS[format])
 	args.append_array(ARG_BINDINGS[quality])
@@ -444,14 +466,16 @@ func download_video(link : String, output_dir : String, file_name_format: String
 		"\"" + link + "\"",
 		"-o", "\"" + format_filename(file_name_format).replace("[quality]", "%(height)sp") + ".%(ext)s" + "\"",
 		"-P", "\"" + output_dir + "/" + await  get_playlist_title(link) + "\"",
-		"--cookies-from-browser", web_browser,
 		"--embed-metadata",
 		"--no-playlist"
 		#"--yes-playlist" if is_playlist else "--no-playlist",
 		#"--newline",
 	]
 	
-	
+	match web_browser:
+		"none": pass
+		"cookies.txt": args.append_array(["--cookies", "cookies.txt"])
+		_: args.append_array(["--cookies-from-browser ", web_browser])
 	
 	#args.append_array(ARG_BINDINGS[codec])
 	args.append_array(ARG_BINDINGS[format])
@@ -482,7 +506,12 @@ func get_playlist_title(link : String) -> String:
 		print("Playlist directory creation bypassed")
 		return ""
 	
-	var args : Array = ["\"" + link + "\"", "--cookies-from-browser", web_browser]
+	var args : Array = ["\"" + link + "\""]
+	match web_browser:
+		"none": pass
+		"cookies.txt": args.append_array(["--cookies", "cookies.txt"])
+		_: args.append_array(["--cookies-from-browser ", web_browser])
+	
 	args += ARG_BINDINGS["has_playlist"]
 	
 	var playlist_test : Dictionary = run(args, Binary.YTDLP, false, true, false, true)
@@ -523,8 +552,18 @@ func request_queue():
 	
 	if queue.size() == 0 or (current_hook.has("done") and current_hook["done"] == false): 
 		print("queue is currently active! waiting..")
+		if queue.size() == 0 and not erred:
+			if open_directory_on_finish:
+				print("opening " + current_request.get_bound_arguments()[2][4].replace("\"", "").replace("//", "/").replace("/", "\\"))
+				OS.create_process("explorer.exe", [current_request.get_bound_arguments()[2][4].replace("\"", "").replace("//", "/").replace("/", "\\")])
+			
+			if close_on_finish:
+				print("Closing gracefully because finish detected")
+				get_tree().quit()
+		
+		
 		return
-	
+	erred = false
 	var next : Callable = queue.pop_front()
 	var hook : Dictionary = next.call() 
 	

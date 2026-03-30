@@ -5,7 +5,9 @@
 [ext_resource type="PackedScene" uid="uid://cciwyovfa0224" path="res://utils/Nodes/image_button.tscn" id="2_7mycd"]
 [ext_resource type="Theme" uid="uid://bq2ywmplfv6um" path="res://resources/theme.tres" id="3_1bvp3"]
 [ext_resource type="FontFile" uid="uid://c115jaaqcitkd" path="res://art/fonts/Pangolin-Regular.ttf" id="4_lquwl"]
+[ext_resource type="Texture2D" uid="uid://b8cvhjwqyvlcq" path="res://art/emojis/audio.PNG" id="4_muem4"]
 [ext_resource type="LabelSettings" uid="uid://dkvgeuvfperpi" path="res://resources/settings_subheader.tres" id="5_choun"]
+[ext_resource type="Texture2D" uid="uid://d2y2o04hfe6ja" path="res://art/emojis/video.PNG" id="5_dp3eg"]
 [ext_resource type="Script" uid="uid://dlxh0jywnijwe" path="res://utils/Nodes/single_select_container.gd" id="5_tipki"]
 [ext_resource type="Theme" uid="uid://dcr0l62cdwt37" path="res://resources/settings_theme.tres" id="6_85g3d"]
 [ext_resource type="StyleBox" uid="uid://bvjuewyeo8ikl" path="res://resources/button_style.tres" id="6_o6xl0"]
@@ -160,6 +162,20 @@ content_margin_bottom = 2.0
 bg_color = Color(1, 0.9490196, 0.6, 1)
 corner_detail = 6
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ig7tw"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.12941177, 0.06666667, 0.12941177, 0.90588236)
+corner_detail = 10
+
+[sub_resource type="LabelSettings" id="LabelSettings_jkv2x"]
+font_size = 12
+font_color = Color(0.8598718, 0.5434089, 0.7138677, 1)
+outline_size = 2
+outline_color = Color(0, 0, 0, 1)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_muem4"]
 content_margin_left = 4.0
 content_margin_top = 4.0
@@ -258,14 +274,6 @@ font = ExtResource("4_lquwl")
 font_size = 8
 font_color = Color(0.54901963, 0.42745098, 0.654902, 1)
 shadow_offset = Vector2(2, 2)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ig7tw"]
-content_margin_left = 0.0
-content_margin_top = 0.0
-content_margin_right = 0.0
-content_margin_bottom = 0.0
-bg_color = Color(0.12941177, 0.06666667, 0.12941177, 0.90588236)
-corner_detail = 10
 
 [sub_resource type="Animation" id="Animation_choun"]
 length = 0.001
@@ -721,7 +729,18 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_jyhfs")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_jyhfs")
 theme_override_styles/focus = SubResource("StyleBoxFlat_jyhfs")
 toggle_mode = true
-text = "Audio  🎶"
+text = "Audio       "
+icon_alignment = 2
+expand_icon = true
+
+[node name="TextureRect2" type="TextureRect" parent="LinkUI/VBoxContainer/MarginContainer2/MarginContainer/HBoxContainer/Audio" unique_id=1406180081]
+layout_mode = 0
+offset_left = 58.0
+offset_right = 91.0
+offset_bottom = 26.0
+texture = ExtResource("4_muem4")
+expand_mode = 1
+stretch_mode = 4
 
 [node name="VSeparator" type="VSeparator" parent="LinkUI/VBoxContainer/MarginContainer2/MarginContainer/HBoxContainer" unique_id=780642217]
 z_index = 1
@@ -740,7 +759,18 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_tefeu")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_tefeu")
 theme_override_styles/focus = SubResource("StyleBoxFlat_tefeu")
 toggle_mode = true
-text = "Video  🎞️"
+text = "Video         "
+icon_alignment = 2
+expand_icon = true
+
+[node name="TextureRect" type="TextureRect" parent="LinkUI/VBoxContainer/MarginContainer2/MarginContainer/HBoxContainer/Video" unique_id=701645642]
+layout_mode = 0
+offset_left = 55.0
+offset_right = 91.0
+offset_bottom = 28.0
+texture = ExtResource("5_dp3eg")
+expand_mode = 1
+stretch_mode = 4
 
 [node name="ErrorContainer" type="MarginContainer" parent="LinkUI/VBoxContainer/MarginContainer2" unique_id=430515334]
 unique_name_in_owner = true
@@ -859,9 +889,48 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_dp3eg")
 step = 0.001
 show_percentage = false
 
-[node name="Settings" type="Control" parent="." unique_id=676586434]
+[node name="CookieConniption" type="Panel" parent="." unique_id=1791417156]
 unique_name_in_owner = true
 visible = false
+z_index = 68
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 340.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ig7tw")
+
+[node name="MarginContainer" type="MarginContainer" parent="CookieConniption" unique_id=709018411]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Label" type="Label" parent="CookieConniption/MarginContainer" unique_id=356242743]
+layout_mode = 2
+text = "So um.. my program seems to be having a cookie conniption. I must say, this is really a confounding cookie conundrum. Basically i need ur cookies so i can pretend to be you when im downloading stuff off sites. Otherwise ill get flagged (rightfully) as a bot... 
+
+Heres what you can do:
+1. download firefox (reccomended) - you dont have to like actively use it!! Tho see note below
+>> you need to be logged into any accounts from services you wanna download from. <<
+
+2. serach for the extention: \"get cookies.txt locally\" (or similar, i just need the cookies.txt file) and then put your cookies.txt file in 
+\"C:/Users/%username%/AppData/Roaming/TuniTools/Downloader/bin\"
+Not reccomended cos u may have to do this multiple times when ur cookies expire...
+
+restart the program when your done!!"
+label_settings = SubResource("LabelSettings_jkv2x")
+autowrap_mode = 3
+
+[node name="Settings" type="Control" parent="." unique_id=676586434]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1995,20 +2064,21 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 theme = ExtResource("6_85g3d")
+theme_override_constants/icon_max_width = 16
 selected = 2
 fit_to_longest_item = false
 item_count = 6
-popup/item_0/text = "😴  Low"
+popup/item_0/text = "😴 Low"
 popup/item_0/id = 0
-popup/item_1/text = "🥱  Below Average"
+popup/item_1/text = "🥱 Below Average"
 popup/item_1/id = 1
-popup/item_2/text = "🙂  Average"
+popup/item_2/text = "🙂 Average"
 popup/item_2/id = 2
-popup/item_3/text = "😅  Above Average"
+popup/item_3/text = "😅 Above Average"
 popup/item_3/id = 3
 popup/item_4/text = "😨  High"
 popup/item_4/id = 4
-popup/item_5/text = "💀  Realtime "
+popup/item_5/text = "💀 Realtime"
 popup/item_5/id = 5
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Settings/MarginContainer/VBoxContainer/Control" unique_id=1557992666]
