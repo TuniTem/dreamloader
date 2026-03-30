@@ -12,7 +12,7 @@ config_version=5
 
 config/name="DreamLoader"
 config/description="A media downloading application"
-config/version="v0.1"
+config/version="0.1"
 run/main_scene="uid://cd6ypfe07vx2h"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="TuniTools/Downloader"
@@ -20,7 +20,7 @@ config/features=PackedStringArray("4.6", "GL Compatibility")
 run/max_fps=60
 boot_splash/bg_color=Color(0, 0, 0, 0.56078434)
 boot_splash/image="uid://b1cx4eqe623n6"
-config/icon="uid://c5yw5v7go83fp"
+config/icon="uid://lam3jbau262s"
 config/windows_native_icon="res://art/logo/DreamloaderLogo.ico"
 
 [autoload]

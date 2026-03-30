@@ -125,12 +125,20 @@ const BROWSER_NORMALIZATOR9000 : Dictionary[String, String] = {
 	"ChromeHTML": "chrome",
 	"FirefoxURL": "firefox",
 	"MSEdgeHTM": "edge",
+	"IE.HTTP": "edge",
 	"BraveHTML": "brave",
 	"OperaStable": "opera",
+	"Opera GXStable": "opera",
 	"VivaldiHTM": "vivaldi",
 	"NaverWale": "whale",
 	"WhaleHTML": "whale",
 }
+
+#const ALT_BROWSER_CHECK : Dictionary[String, Array] = {
+	#"chrome" : ["chromehtml", "chrome"],
+	#"firefox" : ["firefoxurl", "firefox"],
+	#"edge" : ["edge"]
+#}
 
 const MAX_DOWNLOAD_TRANSCODE_RATIO_HISTORY : int = 8
 const APPROX_INIT_TIME = 4.0
@@ -167,9 +175,17 @@ func _ready() -> void:
 		if output[0].begins_with(browser_prog_id):
 			web_browser = BROWSER_NORMALIZATOR9000[browser_prog_id]
 	
+	if web_browser == "": # erm...
+		for browser_prog_id : String in BROWSER_NORMALIZATOR9000.keys():
+			if BROWSER_NORMALIZATOR9000[browser_prog_id] in output[0].to_lower():
+				web_browser = BROWSER_NORMALIZATOR9000[browser_prog_id]
+	
 	if web_browser == "": # uh oh!
-		printerr("Web browser could not be found: " + str(output[0]))
+		printerr("\nWeb browser could not be found: " + str(output[0]))
 		web_browser = "chromium"#? ?? ?!? 
+		mark_important_error()
+		
+	
 	
 	print("Default browser: " + web_browser)
 	
@@ -189,7 +205,8 @@ func _ready() -> void:
 	# load save data
 	download_transcode_ratio_history = File.load_var("download_transcode_ratio_history", download_transcode_ratio_history)
 
-
+func mark_important_error():
+	print("!! Important Error Above !!")
 
 func run(args : Array, binary : Binary = Binary.YTDLP, console : bool = false, print_output : bool = false, block : bool = true, print_input : bool = false):
 	var concatinated_args : String = ""
@@ -396,7 +413,7 @@ func send_error(errors_str : String):
 
 
 func _on_unhandled_error(code : int, message : String):
-	print("!! Important Error Above !!")
+	mark_important_error()
 
 const DEFAULT_PROGRESS_HOOK : Dictionary = {"current": 0.0, "playlist": -1, "playlist_total" : -1, "is_audio" : false, "done" : false}
 
