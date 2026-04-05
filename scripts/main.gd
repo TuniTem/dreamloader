@@ -7,8 +7,45 @@ const DEFAULT_TITLE_FORMAT = "[playlist_number] [title] ([quality])"
 
 const DEFAULT_WINDOWS_SIZE = Vector2i(864, 140)
 const SETTINGS_WINDOWS_SIZE = Vector2i(864, (486 + 20))
+var gui_scale : float = 1.0 
+const GUI_SCALE_CONVERT : Dictionary[int, float] = {
+	0 : 0.5,
+	1 : 0.75,
+	2 : 1.0,
+	3 : 1.25,
+	4 : 1.5,
+	5 : 1.75,
+	6 : 2.0,
+	7 : 2.5,
+	8 : 3.0
+}
+
 const ANIMATION_SPEED : float = 0.75
 const DEFAULT_OPACITY : float = 0.9
+
+const MUTE_BUTTON_ICONS : Dictionary[bool, CompressedTexture2D] = {
+	true : preload("uid://cttprhc1yixcl"),
+	false : preload("uid://bsklm7ayhdvdi")
+}
+
+const WINDOW_TITLES : Array[String] = [
+	"Downloading your dreams...",
+	"Not affiliated with your subconscious... yet",
+	"Shhh!! Be silent",
+	"Oh, you're back!",
+	"Help! im trapped in this program!!",
+	"Give me your cookies!!",
+	"A wizard is involved, legally we can't say more",
+	"My mom said making this was a bad idea",
+	"Untangling the internet",
+	"Tested on one (1) computer!",
+	"Yep. You downloaded a virus. I have all ur passwords now, nyeheheh!",
+	"                                                                                                              a",
+	"What the flip??",
+	"Wickedsauce in a bottle!",
+	"Stayin' pawesome since 2026!",
+	"YEEEEEHAW!!"
+]
 
 @export var selectors : Array[SingleSelectContainer]
 
@@ -30,18 +67,19 @@ const DEFAULT_OPACITY : float = 0.9
 @onready var download_completion: ProgressBar = %DownloadCompletion
 @onready var queue_container: VBoxContainer = %QueueContainer
 @onready var processor_option_button: OptionButton = %OptionButton
+@onready var gui_scale_options: OptionButton = %GUIScale
 @onready var click_to_copy: Label = %ClickToCopy
 @onready var error_container: MarginContainer = %ErrorContainer
 @onready var error_label: Label = %ErrorLabel
 @onready var error_copy_button: Button = %ErrCopy
 @onready var error_margin_container: MarginContainer = %ErrorMarginContainer
 @onready var cookie_conniption: Panel = %CookieConniption
-
+@onready var mute_texture: TextureRect = %MuteTexture
 
 var first_press : bool = true
 var using_audio : bool = false:
 	set(val):
-		mute.text = "🔊" if val else "🔈  "
+		mute_texture.texture = MUTE_BUTTON_ICONS[val]
 		using_audio = val
 		File.save_var("using_audio", using_audio)
 	
@@ -58,7 +96,11 @@ var disable_animations : bool = false
 
 var settings : Dictionary[String, String]
 
+
+
 func _ready() -> void:
+	randomize()
+	get_window().title = "⋆˙⟡ DreamLoader v0.1 - " + WINDOW_TITLES.pick_random()
 	%Settings.hide()
 	attempt_clipboard_link_paste()
 	load_settings()
@@ -68,15 +110,22 @@ func _ready() -> void:
 	YTDLP.unhandled_error.connect(_on_unhandeld_error)
 	YTDLP.main = self
 	
-	get_window().size = SETTINGS_WINDOWS_SIZE
+	get_window().size = SETTINGS_WINDOWS_SIZE * gui_scale
 	await get_tree().process_frame
-	get_window().size = DEFAULT_WINDOWS_SIZE
+	get_window().size = DEFAULT_WINDOWS_SIZE * gui_scale
 
-func show_cookie_conniption():
-	set_window_vertical(SETTINGS_WINDOWS_SIZE.y)
-	cookie_conniption.show()
-	cookie_conniption.modulate.a = 0.0
-	Util.tween(cookie_conniption, "modulate:a", 1.0, 1.0)
+var prev_vertical : int = 0
+func set_cookie_conniption(to : bool):
+	if to:
+		prev_vertical = get_window().size.y
+		set_window_vertical(SETTINGS_WINDOWS_SIZE.y * gui_scale)
+		cookie_conniption.show()
+		cookie_conniption.modulate.a = 0.0
+		Util.tween(cookie_conniption, "modulate:a", 1.0, 1.0)
+	else:
+		set_window_vertical(prev_vertical)
+		await Util.tween(cookie_conniption, "modulate:a", 0.0, 1.0).finished
+		cookie_conniption.hide()
 
 func load_settings():
 	using_video = File.load_var("using_video", true)
@@ -107,10 +156,13 @@ func load_settings():
 	YTDLP.close_on_finish = File.load_var("close_on_finish", false)
 	close_when_done.button_pressed = YTDLP.close_on_finish
 	
-	var prosessor_index = File.load_var("processor_usage_index", 2)
+	var prosessor_index : int = File.load_var("processor_usage_index", 2)
 	processor_option_button.select(prosessor_index)
 	YTDLP.processor_usage = PROCESS_ENUM_CONVERT[prosessor_index]
 	
+	var gui_index : int = File.load_var("gui_scale", 2)
+	gui_scale_options.select(gui_index)
+	gui_scale = GUI_SCALE_CONVERT[gui_index]
 	
 	for selector : SingleSelectContainer in selectors:
 		var starting_setting : String = File.load_var(selector.update_id, selector.default_pressed_id)
@@ -138,7 +190,7 @@ func _on_audio_pressed() -> void:
 	using_video = false
 	first_press = false
 	
-	mute.text = "🔊"
+	mute_texture.texture = MUTE_BUTTON_ICONS[true]
 
 
 func _on_video_pressed(set_audio : bool = true) -> void:
@@ -164,10 +216,10 @@ func _on_settings_pressed() -> void:
 	
 	if not settings_open:
 		tween.set_parallel()
-		if goin_up and get_window().position.y > DisplayServer.screen_get_size().y- SETTINGS_WINDOWS_SIZE.y:
-			tween.tween_property(get_window(), "position:y", get_window().position.y + SETTINGS_WINDOWS_SIZE.y - 140.0, ANIMATION_SPEED if not disable_animations else 0.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		if goin_up and get_window().position.y > DisplayServer.screen_get_size().y- SETTINGS_WINDOWS_SIZE.y * gui_scale:
+			tween.tween_property(get_window(), "position:y", get_window().position.y + SETTINGS_WINDOWS_SIZE.y * gui_scale - DEFAULT_WINDOWS_SIZE.y * gui_scale, ANIMATION_SPEED if not disable_animations else 0.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 		
-		tween.tween_property(get_window(), "size:y", DEFAULT_WINDOWS_SIZE.y, ANIMATION_SPEED if not disable_animations else 0.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		tween.tween_property(get_window(), "size:y", DEFAULT_WINDOWS_SIZE.y * gui_scale, ANIMATION_SPEED if not disable_animations else 0.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 		
 		if not disable_animations:
 			ui_animations.play("gear_ccw")
@@ -176,23 +228,23 @@ func _on_settings_pressed() -> void:
 			settings_animations.play("hide", -1, 1000.0)
 		
 		if queue_open:
-			#await tween.finished
+			await tween.finished
 			print("SHAOWING")
 			queue_container.show()
 			queue_node.show()
 			Util.tween(queue_container, "modulate:a", 1.0, 0.5, Tween.EASE_OUT, Tween.TRANS_CUBIC)
 			await tween.finished
-			set_window_vertical(DEFAULT_WINDOWS_SIZE.y + (min(MAX_QUEUE_VISIBLE_ENTRIES, YTDLP.queue.size() if prev_queue_size < YTDLP.queue.size() else YTDLP.queue.size()) + 1) * QUEUE_ADDITIONAL_HEIGHT + 10, true, 0.5)
-			#update_queue_visual()
+			set_window_vertical(DEFAULT_WINDOWS_SIZE.y * gui_scale + (min(MAX_QUEUE_VISIBLE_ENTRIES, YTDLP.queue.size() if prev_queue_size < YTDLP.queue.size() else YTDLP.queue.size()) + 1) * QUEUE_ADDITIONAL_HEIGHT + 10, true, 0.5)
+			update_queue_visual()
 		
 		
 	else:
-		goin_up = get_window().position.y > DisplayServer.screen_get_size().y- SETTINGS_WINDOWS_SIZE.y
+		goin_up = get_window().position.y > DisplayServer.screen_get_size().y- SETTINGS_WINDOWS_SIZE.y * gui_scale
 		
 		if goin_up: 
-			tween.tween_property(get_window(), "position:y", DisplayServer.screen_get_size().y-SETTINGS_WINDOWS_SIZE.y - 40.0, ANIMATION_SPEED if not disable_animations else 0.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+			tween.tween_property(get_window(), "position:y", DisplayServer.screen_get_size().y-SETTINGS_WINDOWS_SIZE.y * gui_scale - 40.0, ANIMATION_SPEED if not disable_animations else 0.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 		#if not queue_open:
-		tween.tween_property(get_window(), "size:y", SETTINGS_WINDOWS_SIZE.y, ANIMATION_SPEED if not disable_animations else 0.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		tween.tween_property(get_window(), "size:y", SETTINGS_WINDOWS_SIZE.y * gui_scale, ANIMATION_SPEED if not disable_animations else 0.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 		#else:
 			#update_queue_visual()
 		
@@ -391,7 +443,7 @@ func update_queue_visual():
 			
 		await Util.sleep(0.25)
 		prev_queue_size = shown.size()
-		set_window_vertical(DEFAULT_WINDOWS_SIZE.y + (min(MAX_QUEUE_VISIBLE_ENTRIES, shown.size() if prev_queue_size < shown.size() else shown.size()) + 1) * QUEUE_ADDITIONAL_HEIGHT + 10, true, 0.5)
+		set_window_vertical(DEFAULT_WINDOWS_SIZE.y * gui_scale + (min(MAX_QUEUE_VISIBLE_ENTRIES, shown.size() if prev_queue_size < shown.size() else shown.size()) + 1) * QUEUE_ADDITIONAL_HEIGHT + 10, true, 0.5)
 		
 	elif queue_open:
 		queue_open = false
@@ -403,15 +455,15 @@ func update_queue_visual():
 		
 		
 
-func set_window_vertical(to : int = DEFAULT_WINDOWS_SIZE.y, one_motion: bool = false, speed_multiplier : float = 1.0):
+func set_window_vertical(to : int = DEFAULT_WINDOWS_SIZE.y * gui_scale, one_motion: bool = false, speed_multiplier : float = 1.0):
 	var tween : Tween = create_tween()
 	if one_motion:
 		tween.set_parallel()
 	
 	if get_window().position.y > DisplayServer.screen_get_size().y- to - 30:
-		tween.tween_property(get_window(), "position:y", get_window().position.y - to + get_window().size.y - 30, ANIMATION_SPEED * speed_multiplier if not disable_animations else 0.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		tween.tween_property(get_window(), "position:y", max(get_window().position.y - to + get_window().size.y - 30, 10.0), ANIMATION_SPEED * speed_multiplier if not disable_animations else 0.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	
-	tween.tween_property(get_window(), "size:y", to, ANIMATION_SPEED * speed_multiplier if not disable_animations else 0.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(get_window(), "size", Vector2i(DEFAULT_WINDOWS_SIZE.x * gui_scale, to), ANIMATION_SPEED * speed_multiplier if not disable_animations else 0.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 		
 
 const ERR_COPY_BUTTON_MINIMUM_SIZE : Array = [23.17, 36.1225]
@@ -445,7 +497,7 @@ func _on_user_error(code : int, message : String):
 
 func _on_unhandeld_error(code : int, message : String):
 	if code == 104 and not cookie_conniption.visible:
-		show_cookie_conniption()
+		set_cookie_conniption(true)
 	send_error(code, message, true)
 
 var copying : bool = false
@@ -497,3 +549,26 @@ const PROCESS_ENUM_CONVERT : Dictionary[int, YTDLP.ProcessorUsage] = {
 func _on_option_button_item_selected(index: int) -> void:
 	YTDLP.processor_usage = PROCESS_ENUM_CONVERT[index]
 	File.save_var("processor_usage_index", index)
+
+func _on_gui_scale_item_selected(index: int) -> void:
+	set_gui_scale_index(index, false)
+
+func _on_conniption_close_pressed() -> void:
+	set_cookie_conniption(false)
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("debug"):
+		return#set_cookie_conniption(true)
+	
+	if event.is_action_pressed("scale_up"):
+		set_gui_scale_index(clamp(gui_scale_options.selected + 1, 0, 8))
+	
+	if event.is_action_pressed("scale_down"):
+		set_gui_scale_index(clamp(gui_scale_options.selected - 1, 0, 8))
+
+func set_gui_scale_index(index : int, select : bool = true): 
+	if select: gui_scale_options.select(index)
+	gui_scale = GUI_SCALE_CONVERT[index]
+	File.save_var("gui_scale", index)
+	if settings_open: set_window_vertical(SETTINGS_WINDOWS_SIZE.y * gui_scale)
+	else: set_window_vertical()

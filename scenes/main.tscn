@@ -4,6 +4,7 @@
 [ext_resource type="FontFile" uid="uid://lf6t3wgbsra7" path="res://art/fonts/CodeSaver-Regular.otf" id="2_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://cciwyovfa0224" path="res://utils/Nodes/image_button.tscn" id="2_7mycd"]
 [ext_resource type="Theme" uid="uid://bq2ywmplfv6um" path="res://resources/theme.tres" id="3_1bvp3"]
+[ext_resource type="Texture2D" uid="uid://cttprhc1yixcl" path="res://art/emojis/has_audio.PNG" id="4_dp3eg"]
 [ext_resource type="FontFile" uid="uid://c115jaaqcitkd" path="res://art/fonts/Pangolin-Regular.ttf" id="4_lquwl"]
 [ext_resource type="Texture2D" uid="uid://b8cvhjwqyvlcq" path="res://art/emojis/audio.PNG" id="4_muem4"]
 [ext_resource type="LabelSettings" uid="uid://dkvgeuvfperpi" path="res://resources/settings_subheader.tres" id="5_choun"]
@@ -15,7 +16,6 @@
 [ext_resource type="Texture2D" uid="uid://b5pixapv5tufn" path="res://art/icons/undo (Custom) (1).png" id="7_eb6dy"]
 [ext_resource type="Texture2D" uid="uid://qtb28d4kpop0" path="res://art/icons/settings (Custom).png" id="10_ya4ey"]
 [ext_resource type="Texture2D" uid="uid://djwre4ww52067" path="res://art/2d/77DLAnim0047.png" id="13_a8y0u"]
-[ext_resource type="Texture2D" uid="uid://c0ffdymhpg216" path="res://art/2d/Main_00003.png" id="14_jkv2x"]
 [ext_resource type="Texture2D" uid="uid://bv05h4glmcg8b" path="res://art/2d/restlesspurple.png" id="15_jkv2x"]
 
 [sub_resource type="FontVariation" id="FontVariation_7mycd"]
@@ -192,6 +192,7 @@ corner_detail = 5
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_choun"]
 color = Color(0.18431373, 0.1254902, 0.23137255, 1)
+grow_begin = 20.0
 thickness = 2
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eb6dy"]
@@ -254,16 +255,8 @@ corner_detail = 5
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_eb6dy"]
 color = Color(0.18431373, 0.1254902, 0.23137255, 1)
-grow_begin = -89.0
+grow_begin = 20.0
 thickness = 2
-
-[sub_resource type="FontVariation" id="FontVariation_eb6dy"]
-variation_embolden = 1.25
-
-[sub_resource type="LabelSettings" id="LabelSettings_trceg"]
-font = SubResource("FontVariation_eb6dy")
-font_size = 12
-font_color = Color(0.8235294, 0.49411765, 0.6745098, 1)
 
 [sub_resource type="ImageTexture" id="ImageTexture_yc10j"]
 
@@ -701,6 +694,7 @@ theme_override_constants/margin_right = 0
 
 [node name="Mute" type="Button" parent="LinkUI/VBoxContainer/MarginContainer2/MarginContainer/MarginContainer" unique_id=405333799]
 unique_name_in_owner = true
+z_index = 1
 layout_mode = 2
 size_flags_horizontal = 3
 theme = ExtResource("3_1bvp3")
@@ -709,8 +703,25 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_85g3d")
 theme_override_styles/hover = SubResource("StyleBoxFlat_tipki")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_tipki")
 theme_override_styles/focus = SubResource("StyleBoxFlat_tipki")
-text = "🔊"
 alignment = 2
+
+[node name="MuteTexture" type="TextureRect" parent="LinkUI/VBoxContainer/MarginContainer2/MarginContainer/MarginContainer/Mute" unique_id=1726319096]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -30.0
+offset_top = -15.0
+offset_right = -4.0
+offset_bottom = 11.0
+grow_horizontal = 0
+grow_vertical = 2
+texture = ExtResource("4_dp3eg")
+expand_mode = 1
+stretch_mode = 4
 
 [node name="HBoxContainer" type="HBoxContainer" parent="LinkUI/VBoxContainer/MarginContainer2/MarginContainer" unique_id=1011688387]
 z_index = 1
@@ -908,6 +919,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
@@ -918,16 +930,24 @@ layout_mode = 2
 text = "So um.. my program seems to be having a cookie conniption. I must say, this is really a confounding cookie conundrum. Basically i need ur cookies so i can pretend to be you when im downloading stuff off sites. Otherwise ill get flagged (rightfully) as a bot... 
 
 Heres what you can do:
-1. download firefox (reccomended) - you dont have to like actively use it!! Tho see note below
->> you need to be logged into any accounts from services you wanna download from. <<
 
-2. serach for the extention: \"get cookies.txt locally\" (or similar, i just need the cookies.txt file) and then put your cookies.txt file in 
+download firefox (reccomended) - you dont have to like actively use it!! Tho you need to be logged into any accounts from services you wanna download from. <<
+  - - - OR - - -
+serach for the extention: \"get cookies.txt locally\" (or similar, i just need the cookies.txt file) and then put your cookies.txt file in 
 \"C:/Users/%username%/AppData/Roaming/TuniTools/Downloader/bin\"
 Not reccomended cos u may have to do this multiple times when ur cookies expire...
-
+  - - - THEN - - -
 restart the program when your done!!"
 label_settings = SubResource("LabelSettings_jkv2x")
 autowrap_mode = 3
+
+[node name="ConniptionClose" type="Button" parent="CookieConniption/MarginContainer" unique_id=861037409]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+theme = ExtResource("6_85g3d")
+text = " OK WHATEVER "
 
 [node name="Settings" type="Control" parent="." unique_id=676586434]
 unique_name_in_owner = true
@@ -949,7 +969,7 @@ offset_bottom = 766.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 10
+theme_override_constants/margin_left = 30
 theme_override_constants/margin_top = 80
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
@@ -973,7 +993,6 @@ custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "output folder"
 label_settings = ExtResource("5_choun")
-horizontal_alignment = 1
 
 [node name="OutputFolder" type="LineEdit" parent="Settings/MarginContainer/VBoxContainer/MarginContainer/OutputFolder" unique_id=1466085367]
 unique_name_in_owner = true
@@ -1047,7 +1066,6 @@ custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "title format"
 label_settings = ExtResource("5_choun")
-horizontal_alignment = 1
 
 [node name="TitleFormat" type="LineEdit" parent="Settings/MarginContainer/VBoxContainer/MarginContainer2/TitleFormat" unique_id=1053383427]
 unique_name_in_owner = true
@@ -1122,7 +1140,6 @@ custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "video format"
 label_settings = ExtResource("5_choun")
-horizontal_alignment = 1
 
 [node name="VideoFormatSelector" type="HBoxContainer" parent="Settings/MarginContainer/VBoxContainer/VideoFormat" unique_id=963745113]
 z_index = 1
@@ -1303,7 +1320,6 @@ custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "video quality"
 label_settings = ExtResource("5_choun")
-horizontal_alignment = 1
 
 [node name="VideoQualitySelector" type="HBoxContainer" parent="Settings/MarginContainer/VBoxContainer/VideoQuality" unique_id=1880162169]
 z_index = 1
@@ -1625,7 +1641,6 @@ custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "audio format"
 label_settings = ExtResource("5_choun")
-horizontal_alignment = 1
 
 [node name="AudioFormatSelector" type="HBoxContainer" parent="Settings/MarginContainer/VBoxContainer/AudioFormat" unique_id=1600642100]
 z_index = 1
@@ -1805,7 +1820,6 @@ custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "audio quality"
 label_settings = ExtResource("5_choun")
-horizontal_alignment = 1
 
 [node name="AudioQualitySelector" type="HBoxContainer" parent="Settings/MarginContainer/VBoxContainer/AudioQuality" unique_id=1004811746]
 z_index = 1
@@ -2019,77 +2033,15 @@ custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="HBoxContainer3" type="VBoxContainer" parent="Settings/MarginContainer/VBoxContainer/Control" unique_id=221952977]
-layout_mode = 1
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -136.0
-offset_top = -19.000011
-offset_right = -34.0
-offset_bottom = 21.999989
-grow_horizontal = 0
-grow_vertical = 2
-mouse_filter = 2
-theme_override_constants/separation = 4
-alignment = 2
-
-[node name="Label2" type="Label" parent="Settings/MarginContainer/VBoxContainer/Control/HBoxContainer3" unique_id=478182205]
-layout_mode = 2
-text = "process priority "
-label_settings = ExtResource("5_choun")
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Settings/MarginContainer/VBoxContainer/Control/HBoxContainer3" unique_id=829977237]
-layout_mode = 2
-
-[node name="Control" type="Control" parent="Settings/MarginContainer/VBoxContainer/Control/HBoxContainer3/HBoxContainer" unique_id=255635354]
-custom_minimum_size = Vector2(10, 0)
-layout_mode = 2
-
-[node name="Label3" type="Label" parent="Settings/MarginContainer/VBoxContainer/Control/HBoxContainer3/HBoxContainer/Control" unique_id=749680365]
-layout_mode = 0
-offset_left = -1.9999995
-offset_top = -5.9999995
-offset_right = 4.0000005
-offset_bottom = 11.0
-rotation = -0.3780482
-scale = Vector2(1.3254488, 1.3254488)
-text = "⤹"
-label_settings = SubResource("LabelSettings_trceg")
-
-[node name="OptionButton" type="OptionButton" parent="Settings/MarginContainer/VBoxContainer/Control/HBoxContainer3/HBoxContainer" unique_id=951430782]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 0
-theme = ExtResource("6_85g3d")
-theme_override_constants/icon_max_width = 16
-selected = 2
-fit_to_longest_item = false
-item_count = 6
-popup/item_0/text = "😴 Low"
-popup/item_0/id = 0
-popup/item_1/text = "🥱 Below Average"
-popup/item_1/id = 1
-popup/item_2/text = "🙂 Average"
-popup/item_2/id = 2
-popup/item_3/text = "😅 Above Average"
-popup/item_3/id = 3
-popup/item_4/text = "😨  High"
-popup/item_4/id = 4
-popup/item_5/text = "💀 Realtime"
-popup/item_5/id = 5
-
 [node name="VBoxContainer" type="VBoxContainer" parent="Settings/MarginContainer/VBoxContainer/Control" unique_id=1557992666]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -191.0
-offset_top = -2.0
-offset_right = 365.0
-offset_bottom = 34.0
+offset_left = -284.0
+offset_top = -3.0
+offset_right = 280.0
+offset_bottom = 33.0
 grow_horizontal = 2
 mouse_filter = 2
 theme_override_constants/separation = 8
@@ -2138,6 +2090,7 @@ theme_override_icons/unchecked = SubResource("ImageTexture_jscy8")
 button_pressed = true
 
 [node name="Label2" type="Label" parent="Settings/MarginContainer/VBoxContainer/Control/VBoxContainer/MarginContainer3/HBoxContainer/HBoxContainer2" unique_id=2140543595]
+custom_minimum_size = Vector2(145, 0)
 layout_mode = 2
 text = "create directory for playlists"
 label_settings = ExtResource("5_choun")
@@ -2149,6 +2102,46 @@ layout_mode = 2
 anchors_preset = 0
 offset_right = 10.0
 offset_bottom = 10.0
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="Settings/MarginContainer/VBoxContainer/Control/VBoxContainer/MarginContainer3/HBoxContainer" unique_id=1163292983]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Control" type="Control" parent="Settings/MarginContainer/VBoxContainer/Control/VBoxContainer/MarginContainer3/HBoxContainer/HBoxContainer3" unique_id=255635354]
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+
+[node name="OptionButton" type="OptionButton" parent="Settings/MarginContainer/VBoxContainer/Control/VBoxContainer/MarginContainer3/HBoxContainer/HBoxContainer3/Control" unique_id=951430782]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1.0
+offset_top = -2.0
+offset_right = 71.0
+offset_bottom = 19.0
+size_flags_horizontal = 0
+theme = ExtResource("6_85g3d")
+theme_override_constants/icon_max_width = 16
+selected = 2
+fit_to_longest_item = false
+item_count = 6
+popup/item_0/text = "😴 Low"
+popup/item_0/id = 0
+popup/item_1/text = "🥱 Below Average"
+popup/item_1/id = 1
+popup/item_2/text = "🙂 Average"
+popup/item_2/id = 2
+popup/item_3/text = "😅 Above Average"
+popup/item_3/id = 3
+popup/item_4/text = "😨  High"
+popup/item_4/id = 4
+popup/item_5/text = "💀 Realtime"
+popup/item_5/id = 5
+
+[node name="Label2" type="Label" parent="Settings/MarginContainer/VBoxContainer/Control/VBoxContainer/MarginContainer3/HBoxContainer/HBoxContainer3" unique_id=1166362449]
+layout_mode = 2
+text = " CPU usage "
+label_settings = ExtResource("5_choun")
 
 [node name="MarginContainer4" type="MarginContainer" parent="Settings/MarginContainer/VBoxContainer/Control/VBoxContainer" unique_id=1130551545]
 layout_mode = 2
@@ -2194,6 +2187,7 @@ theme_override_icons/unchecked = SubResource("ImageTexture_jscy8")
 button_pressed = true
 
 [node name="Label2" type="Label" parent="Settings/MarginContainer/VBoxContainer/Control/VBoxContainer/MarginContainer4/HBoxContainer/HBoxContainer4" unique_id=691882204]
+custom_minimum_size = Vector2(145, 0)
 layout_mode = 2
 text = "open directory when done"
 label_settings = ExtResource("5_choun")
@@ -2205,6 +2199,53 @@ layout_mode = 2
 anchors_preset = 0
 offset_right = 10.0
 offset_bottom = 10.0
+
+[node name="HBoxContainer5" type="HBoxContainer" parent="Settings/MarginContainer/VBoxContainer/Control/VBoxContainer/MarginContainer4/HBoxContainer" unique_id=211346358]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Control" type="Control" parent="Settings/MarginContainer/VBoxContainer/Control/VBoxContainer/MarginContainer4/HBoxContainer/HBoxContainer5" unique_id=282121453]
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+
+[node name="GUIScale" type="OptionButton" parent="Settings/MarginContainer/VBoxContainer/Control/VBoxContainer/MarginContainer4/HBoxContainer/HBoxContainer5/Control" unique_id=2096930400]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1.0
+offset_top = -2.0
+offset_right = 71.0
+offset_bottom = 19.0
+size_flags_horizontal = 0
+theme = ExtResource("6_85g3d")
+theme_override_constants/icon_max_width = 16
+alignment = 1
+selected = 2
+fit_to_longest_item = false
+item_count = 9
+popup/item_0/text = "x 0.5"
+popup/item_0/id = 0
+popup/item_1/text = "x 0.75"
+popup/item_1/id = 1
+popup/item_2/text = "x 1.0"
+popup/item_2/id = 2
+popup/item_3/text = "x 1.25"
+popup/item_3/id = 3
+popup/item_4/text = "x 1.5"
+popup/item_4/id = 4
+popup/item_5/text = "x 1.75"
+popup/item_5/id = 5
+popup/item_6/text = "x 2.0"
+popup/item_6/id = 6
+popup/item_7/text = "x 2.5"
+popup/item_7/id = 7
+popup/item_8/text = "x 3.0"
+popup/item_8/id = 8
+
+[node name="Label2" type="Label" parent="Settings/MarginContainer/VBoxContainer/Control/VBoxContainer/MarginContainer4/HBoxContainer/HBoxContainer5" unique_id=1719461741]
+layout_mode = 2
+text = " GUI scale"
+label_settings = ExtResource("5_choun")
 
 [node name="Watermark" type="MarginContainer" parent="." unique_id=1188661788]
 layout_mode = 1
@@ -2320,14 +2361,6 @@ position = Vector2(288, 24.999998)
 scale = Vector2(0.30870172, 0.30870172)
 texture = ExtResource("13_a8y0u")
 
-[node name="Main00037" type="Sprite2D" parent="." unique_id=1555108478]
-modulate = Color(0.49455, 0.35909998, 0.63, 1)
-z_index = -2
-position = Vector2(73, 295.99997)
-rotation = -1.988254
-scale = Vector2(0.09805105, 0.09805105)
-texture = ExtResource("14_jkv2x")
-
 [node name="Restlesspurple" type="Sprite2D" parent="." unique_id=1960697347]
 visible = false
 modulate = Color(0.26, 0.26, 0.26, 0.6627451)
@@ -2342,6 +2375,7 @@ texture = ExtResource("15_jkv2x")
 [connection signal="pressed" from="LinkUI/VBoxContainer/MarginContainer2/MarginContainer/HBoxContainer/Video" to="." method="_on_video_pressed"]
 [connection signal="pressed" from="LinkUI/VBoxContainer/MarginContainer2/ErrorContainer/ErrorMarginContainer/ErrCopy2" to="." method="_on_err_copy_pressed"]
 [connection signal="pressed" from="LinkUI/VBoxContainer/MarginContainer2/ErrorContainer/ErrorMarginContainer/ErrCopy" to="." method="_on_err_copy_pressed"]
+[connection signal="pressed" from="CookieConniption/MarginContainer/ConniptionClose" to="." method="_on_conniption_close_pressed"]
 [connection signal="focus_exited" from="Settings/MarginContainer/VBoxContainer/MarginContainer/OutputFolder/OutputFolder" to="." method="_on_output_folder_text_submitted"]
 [connection signal="text_submitted" from="Settings/MarginContainer/VBoxContainer/MarginContainer/OutputFolder/OutputFolder" to="." method="_on_output_folder_text_submitted"]
 [connection signal="pressed" from="Settings/MarginContainer/VBoxContainer/MarginContainer/OutputFolder/OutputFolder/FindFile" to="." method="_on_find_file_pressed"]
@@ -2352,9 +2386,10 @@ texture = ExtResource("15_jkv2x")
 [connection signal="selection_updated" from="Settings/MarginContainer/VBoxContainer/VideoQuality/VideoQualitySelector" to="." method="_on_setting_selection_updated"]
 [connection signal="selection_updated" from="Settings/MarginContainer/VBoxContainer/AudioFormat/AudioFormatSelector" to="." method="_on_setting_selection_updated"]
 [connection signal="selection_updated" from="Settings/MarginContainer/VBoxContainer/AudioQuality/AudioQualitySelector" to="." method="_on_setting_selection_updated"]
-[connection signal="item_selected" from="Settings/MarginContainer/VBoxContainer/Control/HBoxContainer3/HBoxContainer/OptionButton" to="." method="_on_option_button_item_selected"]
 [connection signal="toggled" from="Settings/MarginContainer/VBoxContainer/Control/VBoxContainer/MarginContainer3/HBoxContainer/HBoxContainer/DisableAnimationsCheck" to="." method="_on_disable_animations_check_toggled"]
 [connection signal="toggled" from="Settings/MarginContainer/VBoxContainer/Control/VBoxContainer/MarginContainer3/HBoxContainer/HBoxContainer2/CreateDirectoryForPlaylists" to="." method="_on_create_directory_for_playlists_toggled"]
+[connection signal="item_selected" from="Settings/MarginContainer/VBoxContainer/Control/VBoxContainer/MarginContainer3/HBoxContainer/HBoxContainer3/Control/OptionButton" to="." method="_on_option_button_item_selected"]
 [connection signal="toggled" from="Settings/MarginContainer/VBoxContainer/Control/VBoxContainer/MarginContainer4/HBoxContainer/HBoxContainer/CloseWhenDone" to="." method="_on_close_when_done_toggled"]
 [connection signal="toggled" from="Settings/MarginContainer/VBoxContainer/Control/VBoxContainer/MarginContainer4/HBoxContainer/HBoxContainer4/OpenDirectory" to="." method="_on_open_directory_toggled"]
+[connection signal="item_selected" from="Settings/MarginContainer/VBoxContainer/Control/VBoxContainer/MarginContainer4/HBoxContainer/HBoxContainer5/Control/GUIScale" to="." method="_on_gui_scale_item_selected"]
 [connection signal="pressed" from="SettingsButtonHolder/Control/Settings" to="." method="_on_settings_pressed"]

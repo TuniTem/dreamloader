@@ -85,12 +85,6 @@ const PROCESSOR_STRING_CONVERTION : Dictionary[ProcessorUsage, String] = {
 	ProcessorUsage.REALTIME : "high", # i dont think anyone wants real-time.... https://devblogs.microsoft.com/oldnewthing/20100610-00/?p=13753
 }
 
-#const CONTAINER_BINDINGS : Dictionary[String, String] = {
-	#"mp4" : "h264",
-	#"avi" : 
-#}
-
-
 const BINARY_NAMES : Dictionary[Binary, String] = {
 	Binary.YTDLP : "yt-dlp.exe",
 	Binary.FFMPEG : "ffmpeg.exe",
@@ -145,6 +139,33 @@ const BROWSER_NORMALIZATOR9000 : Dictionary[String, String] = {
 	#"edge" : ["edge"]
 #}
 
+signal unhandled_error(code : int, message : String)
+signal user_error(code : int, message : String)
+
+const USER_ERRORS : Dictionary[String, Array] = {
+	"is not a valid URL": [2, "Invalid URL"],
+	"No media found": [3, "No media found"],
+	"Unsupported URL": [4, "Unsupported URL"],
+	"members-only content" : [5, "Restricted content"],
+	"DRM" : [6, "DRM Blocked"],
+	"Video unavalable" : [7, "Video unavalable"]
+}
+
+const PROGRAM_ERRORS : Dictionary[String, Array] = {
+	"no such option": [101, "Argument parse error"],
+	"Failed to extract any player response" : [102, "Timed out - No player response"],
+	"being used by another process" : [103, "Attempted to access file in use"],
+	"cookies database" : [104, "Error fetching cookies"],
+	"Failed to decrypt with DPAPI" : [104, "Error fetching cookies"],
+} 
+const IGNORE_ERRORS : Array = [
+	"WARNING",
+	"yt-dlp.exe [OPTIONS] URL",
+	"Unicode parsing error"
+]
+
+
+
 const MAX_DOWNLOAD_TRANSCODE_RATIO_HISTORY : int = 8
 const APPROX_INIT_TIME = 4.0
 
@@ -173,7 +194,7 @@ var erred : bool = false
 
 func _ready() -> void:
 	unhandled_error.connect(_on_unhandled_error)
-	web_browser = "chromium"#find_browser()
+	web_browser = find_browser()
 	print("Using browser: " + web_browser)
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(BINARY_LOCATION + ZIP_NAMES[Binary.PLUGINS]))
 	
@@ -222,7 +243,7 @@ func find_browser():
 	# uh oh!
 	printerr("\nWeb browser could not be found: " + str(output[0]))
 	mark_important_error()
-	return "chromium" # ? ?? ?!? 
+	return "firefox" # ? ?? ?!? 
 	
 
 func mark_important_error():
@@ -377,28 +398,6 @@ func update_progress(process_hook : Dictionary, progress_hook : Dictionary, usin
 	
 	
 
-signal unhandled_error(code : int, message : String)
-signal user_error(code : int, message : String)
-
-const USER_ERRORS : Dictionary[String, Array] = {
-	"is not a valid URL": [2, "Invalid URL"],
-	"No media found": [3, "No media found"],
-	"Unsupported URL": [4, "Unsupported URL"],
-	"members-only content" : [5, "Restricted"]
-}
-
-const PROGRAM_ERRORS : Dictionary[String, Array] = {
-	"no such option": [101, "Argument parse error"],
-	"Failed to extract any player response" : [102, "Timed out - No player response"],
-	"being used by another process" : [103, "Attempted to access file in use"],
-	"cookies database" : [104, "Error fetching cookies"],
-	"Failed to decrypt with DPAPI" : [104, "Error fetching cookies"]
-} 
-const IGNORE_ERRORS : Array = [
-	"WARNING",
-	"yt-dlp.exe [OPTIONS] URL",
-	"Unicode parsing error"
-]
 
 func send_error(errors_str : String): 
 	var errors : PackedStringArray = errors_str.split("\n")
@@ -408,14 +407,18 @@ func send_error(errors_str : String):
 		
 		printerr(error)
 		
+		var ignore : bool = false
 		for ignore_error in IGNORE_ERRORS:
 			if error.contains(ignore_error):
 				print("misc unhandled error above")
-				continue
+				ignore = true
+		
+		if ignore: continue
 		
 		var handled : bool = false
 		for user_err in USER_ERRORS.keys():
 			if error.contains(user_err):
+				erred = true
 				user_error.emit(USER_ERRORS[user_err][0], USER_ERRORS[user_err][1])
 				handled = true
 		
@@ -428,7 +431,7 @@ func send_error(errors_str : String):
 			unhandled_error.emit(201, error.right(-error.find("]") - 2))
 
 
-func _on_unhandled_error(code : int, message : String):
+func _on_unhandled_error(_code : int, _message : String):
 	mark_important_error()
 
 const DEFAULT_PROGRESS_HOOK : Dictionary = {"current": 0.0, "playlist": -1, "playlist_total" : -1, "is_audio" : false, "done" : false}
