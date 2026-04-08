@@ -100,7 +100,7 @@ var settings : Dictionary[String, String]
 
 func _ready() -> void:
 	randomize()
-	get_window().title = "⋆˙⟡ DreamLoader v0.1 - " + WINDOW_TITLES.pick_random()
+	get_window().title = "⋆˙⟡ DreamLoader v" + Global.VERSION_NUMBER + " - " + WINDOW_TITLES.pick_random()
 	%Settings.hide()
 	attempt_clipboard_link_paste()
 	load_settings()

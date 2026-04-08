@@ -1828,7 +1828,7 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 0
 alignment = 1
 script = ExtResource("5_tipki")
-default_pressed_id = "320kbs"
+default_pressed_id = "320kbps"
 update_id = "audio_quality"
 
 [node name="320kbps" type="Control" parent="Settings/MarginContainer/VBoxContainer/AudioQuality/AudioQualitySelector" unique_id=1278840765]

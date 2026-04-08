@@ -28,6 +28,7 @@ config/windows_native_icon="res://art/logo/DreamloaderLogo.ico"
 File="*uid://cpi2pnfflekdv"
 Util="*uid://dhqqejsdf4hqa"
 YTDLP="*uid://bygxg7bxoh8i6"
+Global="*uid://dsk36q0ua65is"
 
 [display]
 

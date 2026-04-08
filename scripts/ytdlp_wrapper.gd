@@ -255,19 +255,21 @@ func run(args : Array, binary : Binary = Binary.YTDLP, console : bool = false, p
 	for arg : String in args:
 		concatinated_args += " " + arg
 	
+	var dir : String = "%APPDATA%/TuniTools/Downloader/" + BINARY_LOCATION.replace("user://", "")
+	
 	if print_input:
-		print("RUNNING COMMAND:\ncd " + ProjectSettings.globalize_path(BINARY_LOCATION) + " && start \"\" /" + PROCESSOR_STRING_CONVERTION[processor_usage] + " /b /wait " + BINARY_NAMES[binary] + concatinated_args)
+		print("RUNNING COMMAND:\ncd " + dir + " && start \"\" /" + PROCESSOR_STRING_CONVERTION[processor_usage] + " /b /wait " + BINARY_NAMES[binary] + concatinated_args)
 	
 	var output : Array = []
 	
 	if block : 
-		OS.execute("CMD.exe", ["/C", "cd " + ProjectSettings.globalize_path(BINARY_LOCATION) + " && start \"\" /" + PROCESSOR_STRING_CONVERTION[processor_usage] + " /b /wait " + BINARY_NAMES[binary] + concatinated_args], output, false, console)
+		OS.execute("CMD.exe", ["/C", "cd " + dir + " && start \"\" /" + PROCESSOR_STRING_CONVERTION[processor_usage] + " /b /wait " + BINARY_NAMES[binary] + concatinated_args], output, false, console)
 		if print_output:
 			print(output[0])
 		return output
 		
 	else:
-		var pipe : Dictionary = OS.execute_with_pipe("CMD.exe", ["/C", "cd " + ProjectSettings.globalize_path(BINARY_LOCATION) + " && start \"\" /" + PROCESSOR_STRING_CONVERTION[processor_usage] + " /b /wait " + BINARY_NAMES[binary] + concatinated_args], false)
+		var pipe : Dictionary = OS.execute_with_pipe("CMD.exe", ["/C", "cd " + dir + " && start \"\" /" + PROCESSOR_STRING_CONVERTION[processor_usage] + " /b /wait " + BINARY_NAMES[binary] + concatinated_args], false)
 		child_processes_ids.append(pipe["pid"])
 		return pipe
 	
